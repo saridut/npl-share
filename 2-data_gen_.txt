@@ -1,0 +1,195 @@
+# Dataset generation
+
+## Sampling and the non-overlap condition
+
+In the _Ribbon_ code, both radius $R$ and pitch $P$ may assume positive, negative, or
+  zero values, but $R \neq P \neq 0$. For right handed helices, $P > 0$, and
+for left handed helices $P < 0$. If $R<0$, the NPL simply turns inside out,
+while preserving the handedness. If $R = 0$ (at $P \neq 0$), the helical NPL
+degenerates to a _helicoid_. If $P = 0$ (at $R \neq 0$), the helical NPL
+degenerates to a _cylinder_. If $R = \pm \infty$ and $P = \pm \infty$, the helical NPL
+degenerates to a _flat_ configuration. 
+
+In order to avoid adding polydispersity in shape and size, we stick to
+  helical ribbons, i.e. $R \neq 0$, $P \neq 0$ and finite. To aid in intuitive
+clarity and facilitate interpretation of experimental data, we will add the
+restriction that $R > 0$ as well (assuming that turning an NPL inside out makes
+no difference).
+
+To prevent overlap (or penetration), $R$ and $P$ _may not_ be chosen
+  independently. There are several restrictions depending on the length $L$ and
+width $W$ of the NPL (the thickness does not matter for helical NPLs). Thus
+when sampling conformations $R$ and $P$ are not independent random variables;
+we need to take into account the conditional probability distribution.
+
+The criterion for $R$ is that $ W/2\pi < R \leq \infty$. Within those bounds on
+$R$, if $R \geq L/2\pi$, any pitch may be chosen, i.e. $R$ and $P$ become
+independent random variables. If $ W/2\pi < R < L/2\pi$, $P \geq W/\cos \psi$,
+where $\psi$ is the helix angle. The plot below shows the minimum value of
+$\lvert P \rvert$ as a function of $R$ at $L = 100$nm and $W = 10$ nm.  The
+plot ends where $R$ and $P$ become independent. At all points the sampled $P$
+must have an absolute value lying on or above the curve.
+
+:::{figure} images/fig-allowed-pitch.png
+:width: 600px
+:align: center
+
+Allowable values of pitch $\lvert P \rvert_{\mathrm{min}}$ for $L = 100$ nm and
+$W = 10$ nm.
+:::
+
+Three distributions are considered in the code: (1) Uniform, (2) Normal, (3) Lognormal.
+  To ensure positivity, we use lognormal for $R$, though uniform may also be
+used. For pitch, the distribution is normal, but truncated with a lower bound
+dependent on $R$. During sampling, we first choose $R$ from a lognormal
+distribution with a location parameter $W/2\pi$. Then we calculate $\delta$ and
+sample $P$ from the truncated normal distribution using the inverse transform
+of the CDF.
+
+## Creating the data set
+
+We sample the parameters of the respective distributions uniformly. For a
+uniform distribution, the mean $\bar{x}$ is sampled uniformly within provided
+bounds, as is the polydispersity PD. In this case PD = $\sigma/{\bar{x}}$, were
+uniform distribution has bounds $(\bar{x}-\sigma, \bar{x}+\sigma)$. For normal
+distribution, $\sigma$ is the usual standard deviation. For lognormal, $\sigma$
+is not used. Following the parametrization of particle sizes in the literature,
+$\bar{x}$ is the median, rather than the mean and $PD >1$ is the _geometric
+standard deviation_. Thus, 68.27\% of values fall within $[\bar{x}/\mathrm{PD},
+\bar{x} \mathrm{PD}]$.
+
+### Choosing the range of polydispersity
+
+We supply just the bounds on $\bar{x}$ and PD, rest is done within the code.
+We use $\bar{R}, \bar{P} \in [5, 50]$ nm. The next issue is how to choose the
+bounds on PD, given the fact that a sufficiently large value will smooth out
+the SAXS pattern and leave it featureless. The plots below compare SAXS
+patterns for 2ML NPLs at different values of PD at fixed mean values of $R$ and
+$P$.
+
+:::{figure} images/fig-pd-R.svg
+:width: 1000px
+:align: center
+
+Effect of increasing polydispersity in $R$ on the SAXS patterns for 2ML CdSe
+NPLs with $L = 100$ nm, $W=10$nm, $\bar{R}=10$ nm, and $\bar{P}=30$ nm.
+Increasing polydispersity leads to smoothing of the curves.
+:::
+
+:::{figure} images/fig-pd-P.svg
+:width: 1000px
+:align: center
+
+Effect of increasing polydispersity in $P$ on the SAXS patterns for 2ML CdSe
+NPLs with $L = 100$ nm, $W=10$nm, $\bar{R}=10$ nm, and $\bar{P}=30$ nm.
+:::
+
+:::{admonition} Observation
+It seems reasonable to restrict the maximum PD to 1.2, i.e 20\% based on the
+above plots. During sampling, a value of PD will be uniformly sampled from [0,
+PD] for normal and uniform distribution and [1, PD] for lognormal.
+:::
+
+### Choosing the number of NPLs within the volume
+
+Having chosen the parameters of the distributions, the question arises of how
+many _samples_ (NPLs) for _each distribution_. In dilute solution, the SAXS
+pattern is the average over each particle in the solution volume under
+consideration.  Formally, we write the expression for the differential
+scattering cross-section per unit volume as
+
+\begin{equation}
+I(Q) \propto \frac{1}{V} \frac{d\Sigma(Q)}{d\Omega} 
+= \frac{1}{V} \sum_k^N \biggl [ 
+    \sum_{i,j} f_i(Q) f_j(Q) \frac{\sin Qr_{ij}}{Qr_{ij}} 
+    \biggr ],
+\end{equation}
+
+where the summation over $k$ goes over all NPLs $N$ in $V$ and the sum over
+$i,j$ goes over all atoms of an NPL. The factors $f_i(Q)$ are calculated by
+_debyer_ in units of electrons (dimensionless). We multiply by the
+electron scattering length $r_e$ = 2.818 fm to keep the above equation
+dimensionally consistent. Assuming a volume fraction of 0.1\%, $\phi = 0.001$
+and that all NPLs have the same volume $v_p$ (the code does not assume equal
+volumes) the above equation can be rewritten as 
+
+\begin{equation}
+\frac{1}{V} \frac{d\Sigma(Q)}{d\Omega} = r_e^2 \frac{\phi}{\sum_k v_p} P(Q) 
+ =  r_e^2 \frac{0.001}{N v_p} P(Q).
+\end{equation}
+
+The LHS has dimension cm$^{-1}$. Now we need to figure out how to choose $N$.
+_debyer_ will run once for each $N$, times the number of samples of
+distributions, so it should not be too large. On the other hand, too small a
+value will lead to undersampling, especially for higher polydispersities.
+
+The plot below shows the effect of increasing $N$ on the SAXS patterns for $L =
+100$ nm, $W=10$nm, $\bar{R}=10$ nm, PD$_R$ = 1.2, $\bar{P}=30$ nm, and PD$_P$ =
+1.2. Here, $R$ is from a lognormal distribution and $P$ from a normal
+distribution.
+
+:::{figure} images/fig-npart.svg
+:width: 1000px
+:align: center
+
+Effect of increasing $N$ on the SAXS patterns for $L =
+100$ nm, $W=10$nm, $\bar{R}=10$ nm, PD$_R$ = 1.2, $\bar{P}=30$ nm, and PD$_P$ =
+1.2. $R$ is from a lognormal distribution and $P$ from a normal
+distribution. The third panel shows the maximum absolute and relative errors
+with increasing $N$.
+:::
+
+:::{admonition} Observation
+We choose $N = 256$.
+:::
+
+### Choosing the Q-spacing
+
+In the plots before we have used a $Q$-spacing of 0.01 nm$^{-1}$.
+Even for 2ML NPLs, going upto $Q = 80$ nm$^{-1}$ is computationally challenging
+if we persist with the $Q$ spacing used before. Here I compare _split
+spacings_: $\Delta Q = 0.01$ nm$^{-1}$ for $Q \in (0.01, 1)$ nm$^{-1}$
+and $\Delta Q = 0.1$ nm$^{-1}$ for $Q \in (1, 80)$ nm$^{-1}$ _vs_
+using a spacing $\Delta Q = 0.01$ nm$^{-1}$ throughout.
+
+:::{figure} images/fig-npart.svg
+:width: 1000px
+:align: center
+
+:::
+
+:::{admonition} Opinionated choice
+Without the above increment in $\Delta Q$, it would be very expensive to
+generate, say $\approx 6000$ samples for training. I doubt much will be lost
+because the prominent peaks can still be identified. (Zoom into the image).
+:::
+
+### Workflow for creating the dataset
+
+We intend to create $\approx 6000$ samples to be split into 70-15-15\% for
+training, validation, and testing, respectively.
+
+To generate each sample for 2ML CdSe NPLs, we follow the following wokflow:
+
+1. Choose the parameters of the distribution function from the supplied range.
+
+2. For each parameter set, calculate the SAXS pattern for $N = 256$ NPLs and
+   sum them over with appropriate prefactors.
+
+3. These samples are labeled by the parameters of the distributions and saved
+   to a _numpy_ compressed zip file.
+
+The dataset thus prepared will be fed to a VAE-based neural network in PyTorch
+to train it.
+
+:::{admonition} Opinion
+1. Generating thousands of samples would have been trivial if one had access to
+PSMN or IDRIS. Given that I am stuck with my laptop (which will die maybe in
+doin this), generating the training dataset is a massive headache. I may have
+to go down to $N = 128$ or not get into the WAXS regime. Even may be $N = 64$
+and no WAXS!
+
+2. An issue with _debyer_ is that it writes the pattern to a file instead of
+   returning a buffer. File I/O is slow. Someone should write a Python
+interface to _debyer_.
+:::

@@ -1,4 +1,4 @@
-# Updates
+# Ribbons and SAXS patterns 
 
 ## Issues with the narrow narrow-ribbon approximation
 
@@ -32,7 +32,7 @@ corresponding rotation in the Darboux frame. While conceptually simple, the
 implementation _took me a lot of effort_ as visualizing angles between helices
 is hard, especially with Matplotlib in 3D.
 
-```{image} images/fig-ts.png
+```{image} images/1/fig-ts.png
 :width: 500px
 :align: center
 ```
@@ -99,12 +99,12 @@ approximation that only the intensities at the layer lines count, I have used
 $n = pq_{\mathrm{max}}/\pi$. The figure below shows results for varying pitch
 and radius at a fixed width of 15 nm.
 
-```{image} images/hamley_rad.png
+```{image} images/1/hamley_rad.png
 :width: 1000px
 :align: center
 ```
 
-```{image} images/hamley_pitch.png
+```{image} images/1/hamley_pitch.png
 :width: 1000px
 :align: center
 ```
@@ -136,7 +136,7 @@ Visually comparing with the TEM images in the literature, I do think that the
 width needs to be larger as it seems there is significant wraparound. Of
 course, simple visual inspection is error-prone.
 
-```{figure} images/dbr-rad.png
+```{figure} images/1/dbr-rad.png
 :width: 1000px
 :align: center
 
@@ -146,7 +146,7 @@ are from Ovito, the better looking ones are from ChimeraX.
 
 ```
 
-```{figure} images/dbr-pitch.png
+```{figure} images/1/dbr-pitch.png
 :width: 1000px
 :align: center
 
