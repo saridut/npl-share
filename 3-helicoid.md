@@ -1,4 +1,4 @@
-# Helicoid SAXS patterns
+# Helicoid scattering patterns
 
 :::{warning} Caveat
 
@@ -16,12 +16,12 @@ when the deflection gets too large. Warping will occur for non-circular
 cross-sections, but not for circular ones.
 :::
 
-:::{figure} images/3/fig-helicoid_saxs.svg
+:::{figure} images/3/fig-helicoid-saxs.svg
 :label: fig-hcsaxs
 :width: 100%
 :align: center
 
-SAXS patterns for helicoids with different values of pitch $P$ at $L = 100$ nm and
+SAXS/WAXS patterns for helicoids with different values of pitch $P$ at $L = 100$ nm and
 $W = 10$ nm for 2ML CdSe NPLs. 
 :::
 
@@ -117,14 +117,14 @@ two cases may be considered to be twisted cylindrical surfaces.
 This is again without any issues as we have $R=0$ and the limit $P \rightarrow
 \infty$ leads to a flat plate.
 
-## SAXS patterns
+## Scattering patterns
 
 :::{figure} images/3/fig-hr2flat-saxs.svg
 :label: fig-hr2flat
 :width: 100%
 :align: center
 
-SAXS patterns for 2ML CdSe NPLs for different shapes during unrolling from
+SAXS/WAXS patterns for 2ML CdSe NPLs for different shapes during unrolling from
 a helical ribbon to a flat plate.
 :::
 
@@ -133,7 +133,7 @@ a helical ribbon to a flat plate.
 :width: 100%
 :align: center
 
-SAXS patterns for 2ML CdSe NPLs for different shapes during transition from a
+SAXS/WAXS patterns for 2ML CdSe NPLs for different shapes during transition from a
 helical ribbon $\rightarrow$ helicoid $\rightarrow$ flat plate. For better
 comparison between helicoid and a flat plate see [](#fig-hcsaxs). The case
 $R=10, P=10.3$ is the limiting case for a helical ribbon shape. At these
