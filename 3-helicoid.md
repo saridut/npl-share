@@ -144,5 +144,5 @@ e.g. where the edges are circular rather than linear as in
 
 :::{warning}
 We are dealing with static monodisperse shapes here. The _pathways_ being
-talked about here may be far for kinetic pathways.
+talked about here may be far from physically realistic kinetic pathways.
 :::
